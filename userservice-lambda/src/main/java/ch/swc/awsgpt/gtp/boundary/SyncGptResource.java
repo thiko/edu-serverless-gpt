@@ -11,7 +11,7 @@ import java.util.List;
 
 @Tag(name = "sync")
 @Tags(value = @Tag( name="sync"))
-public class GptResource implements SyncApi {
+public class SyncGptResource implements SyncApi {
 
     @Override
     public GptResponse getAnswerFromGpt(String question) {

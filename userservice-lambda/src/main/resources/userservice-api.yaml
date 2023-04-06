@@ -48,6 +48,71 @@ paths:
           description: Invalid Question
         '500':
           description: Something went really wrong or quota exceeded...
+  /async/gpt:
+    post:
+      tags:
+        - async
+      summary: Sends the given question to GPT.
+      description: Sends a request to GPT + use data from your own index. Will respond with the request ID for subsequent status polls.
+      operationId: sendQuestionToGpt
+      requestBody:
+        description: The question for GPT
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsyncGptRequestCreatedResponse'
+      responses:
+        '202':
+          description: Request created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GptResponse'
+          headers:
+            Location:
+              schema:
+                type: string
+                description: The URL where the client could request the status from.
+            Retry-After:
+              schema:
+                type: integer
+              description: Delay next request for ... seconds.
+        '400':
+          description: Invalid request
+        '500':
+          description: Something went really wrong or quota exceeded...
+  /async/gpt/status/{requestId}:
+    get:
+      tags:
+        - async
+      summary: Status endpoint for async GPT requests.
+      description: Returns the processing state of the given request ID. Please take special care of the HTTP code and header.
+      operationId: getProcessingStatus
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request is still in progress.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncGptStatusResponse'
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Delay next request for ... seconds.
+        '302':
+          description: Process completed.
+        '404':
+          description: Given request ID does not exists.
+        '500':
+          description: Something went really wrong or quota exceeded...
 
 components:
   schemas:
@@ -70,3 +135,31 @@ components:
           type: string
         similarityScore:
           type: number
+    AsyncGptRequest:
+      type: object
+      properties:
+        question:
+          type: string
+    AsyncGptRequestCreatedResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: The ID of the request. Needed for all upcoming calls for this item.
+        requestSubmittedAt:
+          type: string
+          format: date-time
+          description: Exact date + time when the request was sent.
+        requestStatusUrl:
+          type: string
+          description: The URL for further status requests. Equal to Location http header.
+    AsyncGptStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ 'PENDING', 'COMPLETED' ]
+          description: The status of the given request.
+        location:
+          type: string
+          description: Defines where to send to upcoming requests to. Stays on the status URL as long as the request is pending. Moves to another URL as soon as the answer is available.
