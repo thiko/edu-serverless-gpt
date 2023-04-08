@@ -1,0 +1,196 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "LLAMA Index API Wrapper for simple document based use-cases",
+    "description": "Builds an index based on a given directory and provides          a simple-to-use endpoint to      query the content of these using GPT 3.5",
+    "contact": {
+      "name": "Me!"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "0.0.1"
+  },
+  "paths": {
+    "/gpt": {
+      "get": {
+        "summary": "Ask Gpt",
+        "description": "Ask a question to GPT",
+        "operationId": "ask_gpt_gpt_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Question",
+              "type": "string"
+            },
+            "name": "question",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GptResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gpt/index": {
+      "post": {
+        "summary": "Person Index Operation",
+        "description": "Perform operations on the current index",
+        "operationId": "person_index_operation_gpt_index_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/IndexOperation"
+            },
+            "name": "operation",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GptResponse": {
+        "title": "GptResponse",
+        "required": [
+          "summary",
+          "sources"
+        ],
+        "type": "object",
+        "properties": {
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "sources": {
+            "title": "Sources",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GptSource"
+            }
+          }
+        }
+      },
+      "GptSource": {
+        "title": "GptSource",
+        "required": [
+          "source_text",
+          "doc_id",
+          "similarity"
+        ],
+        "type": "object",
+        "properties": {
+          "source_text": {
+            "title": "Source Text",
+            "type": "string"
+          },
+          "doc_id": {
+            "title": "Doc Id",
+            "type": "string"
+          },
+          "similarity": {
+            "title": "Similarity",
+            "type": "number"
+          }
+        }
+      },
+      "HTTPValidationError": {
+        "title": "HTTPValidationError",
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      },
+      "IndexOperation": {
+        "title": "IndexOperation",
+        "enum": [
+          "RECREATE"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
+      "ValidationError": {
+        "title": "ValidationError",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "loc": {
+            "title": "Location",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

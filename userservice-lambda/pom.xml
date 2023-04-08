@@ -17,7 +17,7 @@
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.version>2.16.6.Final</quarkus.platform.version>
-        <openapi.generator.version>6.0.1</openapi.generator.version>
+        <openapi.generator.version>6.3.0</openapi.generator.version>
     </properties>
 
     <dependencyManagement>
@@ -45,7 +45,6 @@
             <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
 
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
@@ -59,21 +58,22 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>build</goal>
-                            <goal>generate-code</goal>
-                            <goal>generate-code-tests</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            Did not really work... will continue with openapi-generator-maven-plugin-->
+<!--            <plugin>-->
+<!--                <groupId>${quarkus.platform.group-id}</groupId>-->
+<!--                <artifactId>quarkus-maven-plugin</artifactId>-->
+<!--                <version>${quarkus.platform.version}</version>-->
+<!--                <extensions>true</extensions>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>build</goal>-->
+<!--                            <goal>generate-code</goal>-->
+<!--                            <goal>generate-code-tests</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -92,8 +92,36 @@
                                 <!--ensure we only generate java interfaces and no implementation skeleton-->
                                 <interfaceOnly>true</interfaceOnly>
                             </configOptions>
-                            <apiPackage>ch.swc.boundary.api</apiPackage>
-                            <modelPackage>ch.swc.bounary.model</modelPackage>
+                            <apiPackage>ch.swc.generated.boundary.api</apiPackage>
+                            <modelPackage>ch.swc.generated.boundary.model</modelPackage>
+                            <generateModelTests>false</generateModelTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <generateApiTests>false</generateApiTests>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <auth>false</auth>
+                        </configuration>
+                    </execution>
+
+                    <!-- Generate the API Client Models for LLAMA API -->
+                    <execution>
+                        <id>api-client-gen</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/client/llama-openapi.json</inputSpec>
+                            <generatorName>jaxrs-spec</generatorName>
+                            <library>quarkus</library>
+                            <configOptions>
+                                <dateLibrary>java8</dateLibrary>
+                                <useSwaggerAnnotations>false</useSwaggerAnnotations>
+                                <!--ensure we only generate java interfaces and no implementation skeleton-->
+                                <interfaceOnly>true</interfaceOnly>
+                            </configOptions>
+                            <apiPackage>ch.swc.llama.control</apiPackage>
+                            <modelPackage>ch.swc.llama.entity</modelPackage>
+                            <modelNamePrefix>Llama</modelNamePrefix>
                             <generateModelTests>false</generateModelTests>
                             <generateModelDocumentation>false</generateModelDocumentation>
                             <generateSupportingFiles>false</generateSupportingFiles>
@@ -104,6 +132,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <!--maven helper plugin to add generated sources to maven project-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

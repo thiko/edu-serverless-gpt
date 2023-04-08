@@ -61,14 +61,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AsyncGptRequestCreatedResponse'
+              $ref: '#/components/schemas/AsyncGptRequestCreateRequest'
       responses:
         '202':
           description: Request created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GptResponse'
+                $ref: '#/components/schemas/AsyncGptRequestCreatedResponse'
           headers:
             Location:
               schema:
@@ -163,3 +163,9 @@ components:
         location:
           type: string
           description: Defines where to send to upcoming requests to. Stays on the status URL as long as the request is pending. Moves to another URL as soon as the answer is available.
+    AsyncGptRequestCreateRequest:
+      type: object
+      properties:
+        question:
+          type: string
+          description: What shall we ask GTP?
